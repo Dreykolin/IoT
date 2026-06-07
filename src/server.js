@@ -67,7 +67,8 @@ function publishLedCommand(command) {
   });
 }
 
-app.get('/health', (_req, res) => {
+app.get('/health', (req, res) => {
+  console.log(`[HTTP] GET /health from ${req.ip} - mqttConnected=${mqttConnected}`);
   res.json({
     ok: true,
     mqttConnected,
@@ -75,11 +76,14 @@ app.get('/health', (_req, res) => {
   });
 });
 
-app.post('/encender', async (_req, res) => {
+app.post('/encender', async (req, res) => {
+  console.log(`[HTTP] POST /encender from ${req.ip} - publishing ON to ${MQTT_TOPIC_LED}`);
   try {
     await publishLedCommand('ON');
+    console.log(`[MQTT] Published ON to ${MQTT_TOPIC_LED}`);
     res.json({ ok: true, message: 'Comando ENCENDER enviado por MQTT.' });
   } catch (error) {
+    console.error(`[ERROR] /encender publish: ${error.message}`);
     res.status(503).json({
       ok: false,
       message: 'No se pudo publicar el comando de encendido.',
@@ -88,11 +92,14 @@ app.post('/encender', async (_req, res) => {
   }
 });
 
-app.post('/apagar', async (_req, res) => {
+app.post('/apagar', async (req, res) => {
+  console.log(`[HTTP] POST /apagar from ${req.ip} - publishing OFF to ${MQTT_TOPIC_LED}`);
   try {
     await publishLedCommand('OFF');
+    console.log(`[MQTT] Published OFF to ${MQTT_TOPIC_LED}`);
     res.json({ ok: true, message: 'Comando APAGAR enviado por MQTT.' });
   } catch (error) {
+    console.error(`[ERROR] /apagar publish: ${error.message}`);
     res.status(503).json({
       ok: false,
       message: 'No se pudo publicar el comando de apagado.',
